@@ -10,7 +10,7 @@ Este projeto nasceu da necessidade de visualizar e analisar dados reais de segur
 
 - **Python** - Processamento dos dados
 - **PostgreSQL** - Armazenamento 
-- **Metabase** - Dashboards interativos
+- **Metabase** - Dashboards interativos    http://localhost:3000/public/dashboard/f5e2afda-daf6-4034-bd6e-e6f8b2c962d6
 - **Docker** - Containerização dos serviços
 
 ## Como executar
