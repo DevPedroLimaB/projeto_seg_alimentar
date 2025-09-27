@@ -1,0 +1,4 @@
+pandas
+pymongo
+xlrd
+psycopg2-binary

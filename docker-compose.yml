@@ -1,0 +1,77 @@
+services:
+  mongodb:
+    image: mongo:5.0
+    container_name: mongodb
+    restart: unless-stopped
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=mongoadmin
+      - MONGO_INITDB_ROOT_PASSWORD=secret
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - data-pipeline-net
+
+  postgres:
+    image: postgres:14
+    container_name: postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=analytics_db
+      - POSTGRES_HOST_AUTH_METHOD=trust
+    ports:
+      - "5499:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - data-pipeline-net
+
+  n8n:
+    image: n8nio/n8n
+    container_name: n8n
+    restart: unless-stopped
+    ports:
+      - "5678:5678"
+    environment:
+      - N8N_HOST=localhost
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=http
+      - NODE_ENV=production
+      - GENERIC_TIMEZONE=America/Recife # Fuso horário
+    volumes:
+      - n8n-data:/home/node/.n8n
+    depends_on:
+      - postgres
+      - mongodb
+    networks:
+      - data-pipeline-net
+
+  metabase:
+    image: metabase/metabase:latest
+    container_name: metabase
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - MB_DB_TYPE=postgres
+      - MB_DB_DBNAME=analytics_db # Metabase pode usar o mesmo DB
+      - MB_DB_PORT=5432
+      - MB_DB_USER=postgres
+      - MB_DB_PASSWORD=postgres
+      - MB_DB_HOST=postgres # Nome do serviço postgres
+    depends_on:
+      - postgres
+    networks:
+      - data-pipeline-net
+
+networks:
+  data-pipeline-net:
+    driver: bridge
+
+volumes:
+  mongo-data:
+  postgres-data:
+  n8n-data:
